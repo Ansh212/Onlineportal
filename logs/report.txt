@@ -1,0 +1,309 @@
+1. Introduction
+
+Project Goal:
+The primary objective of this project is to develop and evaluate a system capable of detecting potential cheating behaviors during online examinations conducted via the web portal. The detection relies solely on analyzing user interaction logs captured during the test-taking session, without resorting to more intrusive methods like proctoring or webcam monitoring. The aim is to identify patterns that significantly deviate from normal test-taking behavior and flag potentially dishonest sessions for further review.
+
+The Challenge of Labeled Data:
+A significant hurdle in developing supervised machine learning models for cheat detection is the scarcity of reliable, ground-truth labeled data. It is inherently difficult to know with certainty whether a student cheated in a real-world online test scenario. Requesting users to "cheat" for data collection is impractical and ethically problematic, and relying on post-test analysis or accusations is often unreliable and lacks the granular interaction data needed.
+
+Simulation-Based Approach:
+To overcome the lack of labeled real-world data, this project adopted a simulation-based strategy. The core idea is to generate large volumes of synthetic log data that realistically mimic various *normal* user behaviors and *known or suspected cheating strategies*. By creating distinct datasets for "normal" and "cheat" scenarios, we can train machine learning models to learn the differentiating patterns in the interaction logs.
+
+Project Phases:
+The project was structured into the following key phases:
+    1.  Synthetic Data Generation: Developing Python scripts to simulate user interactions (mouse clicks, key presses, navigation, tab switches, answer selections/changes) for different user profiles (personas) under both normal and cheating conditions. This phase involved significant iteration and refinement to create diverse and plausible logs.
+    2.  Global Baseline Calculation: Processing the generated logs to compute baseline statistics (e.g., average time per question, average accuracy per question) across the entire dataset. This provides a reference point for "typical" behavior.
+    3.  Feature Engineering: Designing and extracting meaningful numerical features from the raw, sequential log data. These features aim to quantify aspects like user speed, accuracy, consistency, navigation patterns, and deviations from the calculated global baselines.
+    4.  Model Training & Evaluation: Using the engineered features and the known labels (Normal/Cheat) from the synthetic data generation phase to train various classification models (e.g., Logistic Regression, SVM, Random Forest, XGBoost). Evaluating model performance rigorously using standard metrics (Accuracy, Precision, Recall, F1-score, Confusion Matrix) on a held-out test set.
+    5.  Data Visualization: Creating visual representations of the generated logs and extracted features to gain insights into the data characteristics, differences between personas, and the effectiveness of engineered features.
+
+2. Methodology
+
+To address the challenge of obtaining labeled data, we developed a simulated environment mirroring the core functionalities of the online test portal. This allowed us to collect detailed interaction logs under controlled conditions, representing a wide spectrum of user behaviors, both legitimate and suspicious.
+
+2.1. Simulated Data Collection Environment
+
+Framework:
+A simulation framework was built using Python to emulate the test-taking process. This framework generated event logs for individual test sessions, capturing user interactions with timestamps. The key parameters of the simulated test environment were configured based on the target portal's setup:
+    -   Test Structure: 30 multiple-choice questions across Maths, Physics, and Chemistry.
+    -   Time Limit: 60 minutes.
+    -   Interaction Logging: The simulation recorded critical events, including:
+        *   Test Started
+        *   Selected question [question_id]
+        *   Selected option [option_index] for question [question_id]
+        *   Cleared option for question [question_id]
+        *   Tab Switched (indicating potential external activity)
+        *   Submitted Test
+
+Output Logs:
+Each simulated test session produced a separate JSON log file (e.g., `normal_average_user_123.json`, `cheat_pre_knowledge_user_456.json`). These logs contain a chronological list of timestamped events, providing a granular record of the user's actions throughout the simulated test. This structured data formed the basis for all subsequent analysis.
+
+2.2. Simulated User Profiles (Personas) for Data Collection
+
+To ensure the collected dataset reflected diverse user approaches, the simulation was driven by predefined user profiles or "personas." These personas encapsulate distinct patterns of behavior, speed, accuracy, and strategy. Data was collected for both normal test-takers and various cheating archetypes.
+
+Normal User Personas:
+Data was collected for 1000 sessions simulating legitimate test-taking behaviors, distributed across five distinct personas:
+
+    1.  Topper:
+        *   Behavior: Represents a highly proficient student.
+        *   Accuracy: Very high (typically > 90%).
+        *   Timing: Fast and efficient, but demonstrates variability based on question difficulty (slightly longer on hard, very quick on easy). Low standard deviation in time per question *for a given difficulty*.
+        *   Interactions: Few answer changes, likely sequential navigation with maybe some final review revisits. Very low probability of tab switching.
+
+    2.  Average Student:
+        *   Behavior: Represents a typical student with moderate understanding.
+        *   Accuracy: Moderate (around 60-75%).
+        *   Timing: Average time per question, showing reasonable variation based on difficulty.
+        *   Interactions: Some answer changes are possible, might revisit questions they were unsure about. Low probability of tab switching.
+
+    3.  Slow & Careful Student:
+        *   Behavior: Represents a diligent student who double-checks work but may be slower.
+        *   Accuracy: High (often 80-90%).
+        *   Timing: Significantly slower than average time per question, methodical pace.
+        *   Interactions: Likely to revisit questions, may have a moderate number of answer changes during review. Very low probability of tab switching.
+
+    4.  Overconfident but Underprepared Student:
+        *   Behavior: Represents a student who rushes through the test without sufficient knowledge.
+        *   Accuracy: Low to Moderate (often < 60%).
+        *   Timing: Faster than average, minimal time spent per question, little variation based on difficulty.
+        *   Interactions: Very few answer changes (sticks with initial guess), minimal revisits, purely sequential navigation. Low probability of tab switching.
+
+    5.  Struggler / Guesser:
+        *   Behavior: Represents a student finding the test very difficult and resorting to guessing.
+        *   Accuracy: Low (often near or below chance level, e.g., < 40%).
+        *   Timing: Highly variable times per question – might spend very little time (quick guess) or get stuck for a long time. High overall standard deviation in timing.
+        *   Interactions: High number of answer changes, may jump between questions randomly or revisit often without progress. Low probability of tab switching.
+
+Cheating User Personas:
+To train the system to recognize suspicious patterns, data was collected for 1000 sessions simulating various cheating strategies:
+
+    1.  Pre-Knowledge Cheater:
+        *   Behavior: Simulates having prior access to all answers.
+        *   Accuracy: Perfect (100%).
+        *   Timing: Extremely fast and highly consistent time spent per question, regardless of difficulty. Minimal time spent overall.
+        *   Interactions: No answer changes, strictly sequential navigation, no tab switching. Clicks through answers rapidly.
+
+    2.  Tab Switcher Cheater:
+        *   Behavior: Simulates looking up answers in other browser tabs or applications.
+        *   Accuracy: High to Very High (aims for > 85-90%).
+        *   Timing: Time per question might be slightly longer than average overall due to switching, or show bimodal distribution (fast on known, slow on looked-up).
+        *   Interactions: Frequent "Tab Switched" events logged, often correlated with more difficult questions. May have few answer changes if finding correct answers externally.
+
+    3.  Smart Cheater:
+        *   Behavior: Simulates a more subtle cheater trying to appear legitimate but still gaining an unfair advantage (e.g., targeted help on a few key questions, or a very efficient external resource).
+        *   Accuracy: Consistently High (e.g., 90-95%).
+        *   Timing: Faster than average, but deliberately not *unrealistically* fast like the Pre-Knowledge persona. Consistent timing with low variance.
+        *   Interactions: Few answer changes, potentially minimal tab switching (if using subtle methods), aims to mimic a very good student but with suspiciously high consistency and speed.
+
+    4.  Slow & Careful Cheater:
+        *   Behavior: Simulates a cheater attempting to disguise high performance by mimicking a careful student.
+        *   Accuracy: Very High (e.g., 95%+).
+        *   Timing: Intentionally slower pace, closer to the average or even the Slow & Careful normal persona.
+        *   Interactions: May deliberately introduce some answer changes or revisits to mask the cheating. Might still exhibit some tab switching, but possibly less frequent or obvious than the dedicated Tab Switcher. The key is high accuracy combined with non-rushed behavior.
+
+This simulated data collection process yielded a rich, labeled dataset comprising 2000 sessions, evenly split between diverse normal behaviors and various cheating strategies. This dataset was fundamental for the subsequent feature engineering and model training phases.
+
+2.3. Global Statistics Calculation
+
+Purpose:
+Before extracting features for individual sessions, it's essential to understand the "typical" behavior across the entire collected dataset *at the question level*. Calculating global statistics provides a baseline against which individual session behavior can be compared. This allows the feature engineering process to quantify how much a specific user's actions on a particular question deviate from the norm observed across all simulated users (both normal and cheating personas). This context is crucial for identifying anomalous behavior.
+
+Process (`calculate_global_stats.py`):
+A dedicated script (`logs/calculate_global_stats.py`) was developed to compute these statistics. The process involved:
+    1.  **Loading Data:** The script iterates through *all* the generated JSON log files located in the `logs/generated_logs_2/` directory. This includes logs from all normal and cheating personas to establish a comprehensive baseline reflecting the full spectrum of simulated behaviors.
+    2.  **Per-Session, Per-Question Parsing:** For each log file (representing one test session), the script parses the timestamped events to calculate key metrics for every question the user interacted with during that specific session. This includes determining the time spent actively viewing each question, whether the final answer submitted for that question was correct, the number of times the user switched tabs while viewing the question, and the number of times they changed their selected answer for that question.
+    3.  **Aggregation Across Sessions:** The script aggregates these per-question metrics across all processed log files. For each unique question ID (e.g., "q1", "q2", ... "q30"), it calculates summary statistics based on all the sessions where that particular question was attempted.
+
+Calculated Global Metrics (Output: `global_stats.json`):
+The aggregated results are stored in a JSON file named `logs/global_stats.json`. This file contains a mapping where each key is a question ID, and the value is an object containing the following global statistics for that specific question:
+
+    *   `global_avg_time`:
+        *   What: The average time (in seconds) users spent actively viewing this specific question across all sessions where it was attempted.
+        *   Why: Provides a baseline measure of the expected time required for a typical interaction with this question, influenced by its inherent difficulty and length.
+
+    *   `global_std_dev_time`:
+        *   What: The standard deviation of the time spent on this question across all attempts.
+        *   Why: Measures the typical variability or spread in the time users spend on this question. A low standard deviation suggests users are consistent in their timing for this question, while a high value indicates significant variation. This is crucial for calculating Z-scores later, which normalize timing relative to typical variation.
+
+    *   `global_accuracy`:
+        *   What: The proportion of times this specific question was answered correctly across all sessions where it was attempted.
+        *   Why: Represents the baseline difficulty of the question as reflected in the performance of the simulated user population. A low global accuracy indicates a difficult question, while a high value suggests an easier one.
+
+    *   `global_avg_tab_switches`:
+        *   What: The average number of "Tab Switched" events recorded while this specific question was the active question on screen, calculated across all attempts.
+        *   Why: Establishes a baseline expectation for how often users might switch context (potentially looking for external help) when faced with this particular question. Even normal users might occasionally switch tabs, so this provides context for interpreting tab switch counts in individual sessions.
+
+    *   `global_avg_answer_changes`:
+        *   What: The average number of times users changed their selected answer ("Cleared option" followed by "Selected option") for this specific question, calculated across all attempts.
+        *   Why: Provides a baseline for typical levels of uncertainty or review associated with this question. Some questions might naturally invite more second-guessing than others.
+
+    *   `global_attempt_count`:
+        *   What: The total number of simulated sessions in which this specific question was attempted (i.e., had at least one interaction log associated with it).
+        *   Why: Serves as the denominator for calculating the averages and indicates how much data contributed to the statistics for each question.
+
+Significance for Feature Engineering:
+The `global_stats.json` file is a critical input for the subsequent feature engineering phase (`extract_features.py`). By providing these per-question baselines, it allows the feature extraction script to calculate powerful *deviation features* for each session. These features measure how much an individual user's behavior (e.g., time spent, accuracy, tab switches) on specific questions differs from the overall average, providing a strong signal for detecting anomalies potentially related to cheating.
+
+
+2.4. Feature Engineering (`extract_features.py`)
+
+Purpose:
+Raw event logs, while detailed, are sequential and variable in length, making them unsuitable as direct input for most standard machine learning classification algorithms. Feature engineering bridges this gap by transforming the complex, time-ordered event data from each session log into a fixed-size vector of numerical features. These features are designed to capture the essential behavioral characteristics of the session in a quantitative manner, highlighting aspects relevant to distinguishing normal behavior from potential cheating. This process also involves assigning the ground-truth label (Normal/Cheat) to each feature vector based on the source log file's persona type.
+
+Process (`extract_features.py`):
+The script `logs/extract_features.py` orchestrates this transformation. It takes two primary inputs:
+    1.  Individual session log files from `logs/generated_logs_2/`.
+    2.  The `logs/global_stats.json` file containing the pre-calculated per-question baseline statistics.
+
+The process for each log file involves two main stages:
+
+    Stage 1: Per-Question Metric Extraction (`get_per_question_metrics`)
+    This stage focuses on analyzing the events related to each specific question attempted within a single session.
+        - The script parses the log's timestamps and sorts events chronologically.
+        - It iterates through the events, tracking the currently active question (`current_q_id`) and calculating metrics for the duration the user interacted with it.
+        - For each attempted question (`q_id`) in the session, it calculates:
+            *   `time_spent`: Total duration (seconds) the question was active on screen.
+            *   `answered_correctly`: Boolean (1/0) indicating if the final answer was correct (`None` if not answered).
+            *   `answer_changes`: Count of "Cleared option" events for this question.
+            *   `tab_switches`: Count of "Tab Switched" events occurring while this question was active.
+            *   `is_attempted`: Boolean flag.
+            *   `difficulty`: Retrieved from static question data (Easy/Medium/Hard).
+            *   `is_revisit`: Boolean flag indicating if the user returned to this question after visiting another one.
+        - Crucially, it then leverages `global_stats.json` to calculate the `time_z_score` for this specific question attempt within this session (detailed below).
+
+    Stage 2: Session-Level Feature Aggregation (`aggregate_features`)
+    This stage takes the per-question metrics calculated in Stage 1 and aggregates them to produce a single feature vector summarizing the entire session. A wide range of features were engineered:
+
+    **Engineered Session Features (Output: `features_dataset.csv`):**
+
+    *   **Overall Timing Features:**
+        *   `total_duration`:
+            - What: Total time elapsed (seconds) from the "Test Started" event to the "Submitted Test" event (or the last recorded event if submission didn't occur).
+            - Why: Basic measure of overall engagement time. Extremely short or long durations can be suspicious.
+            - How: Difference between the last and first timestamps in the log.
+        *   `time_until_first_answer`:
+            - What: Time (seconds) from "Test Started" to the very first "Selected option" event.
+            - Why: Might indicate initial hesitation, reading instructions carefully, or conversely, immediate (potentially suspicious) answering.
+            - How: Timestamp difference between the first "Selected option" and "Test Started".
+        *   `time_between_last_answer_and_submit`:
+            - What: Time (seconds) between the timestamp of the last "Selected option" or "Cleared option" event and the "Submitted Test" event.
+            - Why: Could indicate time spent reviewing answers, or immediate submission after the last action (which might be typical for rushing or pre-knowledge cheating).
+            - How: Timestamp difference between "Submitted Test" and the last answer-related event.
+
+    *   **Aggregated Per-Question Timing Features:** (Based on `time_spent` for each attempted question)
+        *   `mean_time_per_question`:
+            - What: Average time spent across all attempted questions in the session.
+            - Why: Indicates the user's overall pace. Very low average time is a strong indicator for pre-knowledge cheating.
+            - How: Mean of `time_spent` values from Stage 1.
+        *   `std_dev_time_per_question`:
+            - What: Standard deviation of time spent across all attempted questions.
+            - Why: Measures the consistency of the user's pace. Very low standard deviation (especially with high speed) suggests unnatural consistency (e.g., pre-knowledge). High standard deviation might indicate struggling or varied difficulty perception.
+            - How: Standard deviation of `time_spent` values.
+        *   `median_time_per_question`, `min_time_per_question`, `max_time_per_question`:
+            - What: Median, minimum, and maximum time spent on any single question during the session.
+            - Why: Provide further insight into the distribution of time. `min_time` can highlight quick guesses/known answers, `max_time` can indicate getting stuck or complex questions. Median is less sensitive to outliers than the mean.
+            - How: Median, Min, Max of `time_spent` values.
+
+    *   **Activity Count Features:**
+        *   `num_tab_switches`:
+            - What: Total count of "Tab Switched" events across the entire session.
+            - Why: Direct indicator for potential external help seeking (Tab Switcher Cheater).
+            - How: Sum of `tab_switches` calculated per question in Stage 1.
+        *   `num_answer_changes`:
+            - What: Total count of "Cleared option" events across the entire session.
+            - Why: High counts might suggest uncertainty or guessing (Struggler). Very low counts combined with high accuracy/speed could be suspicious (Pre-Knowledge, Smart Cheater).
+            - How: Sum of `answer_changes` per question.
+        *   `num_revisits`:
+            - What: Total count of times a user returned to a question they had previously visited.
+            - Why: Can indicate careful review (Slow & Careful Student) or searching/indecision. Low counts typical for linear cheating or rushing.
+            - How: Sum of `is_revisit` flags per question.
+
+    *   **Navigation / Attempt Rate Features:**
+        *   `num_questions_attempted`:
+            - What: Number of unique questions for which interaction logs exist (i.e., the user visited them).
+            - Why: Indicates how much of the test the user engaged with. Very low counts might indicate giving up early.
+            - How: Count of unique question IDs processed in Stage 1.
+
+    *   **Performance Features:**
+        *   `accuracy`:
+            - What: Overall proportion of correctly answered questions among those attempted.
+            - Why: Primary performance indicator. Unusually high accuracy, especially combined with other suspicious features (speed, low variance), is a key flag.
+            - How: (Number of correctly answered questions) / (Number of attempted questions). Handles division by zero if no questions attempted.
+
+    *   **Deviation Features (Comparison to Global Stats):** These are crucial for contextualizing behavior.
+        *   **`time_z_score` (Calculated per question in Stage 1, then aggregated):**
+            - What: Measures how many standard deviations away a user's time spent on a *specific* question is from the *average time* spent on *that same question* by all users in the dataset.
+            - Why: This is a powerful normalization technique. Directly comparing time spent on an easy question versus a hard question is misleading. Z-scores normalize timing relative to the question's own typical duration and variability, making comparisons meaningful. A user consistently much faster (large negative Z-score) or slower (large positive Z-score) than average *for the specific questions they attempted* is informative.
+            - How (Formula): For a given user's time \(X\) on a question `q_id`, with global average time \(\mu_{q\_id}\) and global standard deviation \(\sigma_{q\_id}\) (from `global_stats.json`):
+              \[ Z_{q\_id} = \frac{(X - \mu_{q\_id})}{\sigma_{q\_id}} \]
+              (If \(\sigma_{q\_id}\) is 0, the Z-score is typically set to 0 to avoid division by zero).
+            - Interpretation:
+                - Z = 0: User took exactly the average time for that question.
+                - Z > 0: User took longer than average (e.g., Z=1 means 1 standard deviation slower).
+                - Z < 0: User took less time than average (e.g., Z=-2 means 2 standard deviations faster).
+        *   `mean_time_z_score`, `min_time_z_score`, `max_time_z_score`, `std_dev_time_z_score`:
+            - What: Statistical summary (mean, min, max, std dev) of the per-question `time_z_score` values calculated across all attempted questions in the session.
+            - Why: Summarizes the user's overall speed profile *relative to the norm for each question*. `mean_time_z_score` < 0 indicates overall faster-than-average performance. `std_dev_time_z_score` indicates consistency *relative to typical variation*. Very low standard deviation here is highly suspicious if combined with speed (indicates answering all questions, regardless of difficulty, with similar deviation from their respective means).
+            - How: Mean, Min, Max, Std Dev applied to the list of Z-scores calculated in Stage 1.
+        *   `accuracy_deviation`:
+            - What: The difference between the user's session `accuracy` and the average `global_accuracy` of only the questions they attempted.
+            - Why: Measures if the user performed significantly better or worse on the specific subset of questions they encountered compared to the average performance on those same questions across the dataset. High positive deviation could be suspicious.
+            - How: Session `accuracy` - Mean(`global_accuracy` for attempted questions).
+        *   `tab_switch_deviation`, `answer_change_deviation`:
+            - What: The difference between the user's total `num_tab_switches` (or `num_answer_changes`) and the sum of the expected `global_avg_tab_switches` (or `global_avg_answer_changes`) for the specific questions they attempted.
+            - Why: Indicates if the user switched tabs or changed answers more or less frequently than expected for the particular set of questions they faced.
+            - How: Total session count - Sum(`global_avg_...` for attempted questions).
+
+    *   **Proportion Features:**
+        *   `proportion_questions_fast`: Percentage of attempted questions where `time_z_score` was below a threshold (e.g., < -1.5), indicating significantly faster than average response.
+        *   `proportion_questions_correct_and_fast`: Percentage of attempted questions answered both correctly and significantly faster than average.
+        *   `proportion_questions_with_tab_switch`: Percentage of attempted questions where at least one tab switch occurred.
+        *   `answer_change_rate`: Percentage of attempted questions where at least one answer change occurred.
+        - Why: These capture specific behavioral patterns (e.g., widespread rapid answering, correlation between speed and correctness).
+
+    Stage 3: Binary Label Assignment (`get_label_from_filename`)
+    - A helper function determines the ground-truth label for the session.
+    - It inspects the filename of the original log file (e.g., `normal_average_user_123.json`, `cheat_pre_knowledge_user_456.json`).
+    - If the filename contains keywords associated with cheating personas (defined in `CHEAT_KEYWORDS`), the label is assigned `1`.
+    - If it contains keywords for normal personas (defined in `NORMAL_PERSONAS`), the label is `0`.
+    - This label is added as the final column to the feature vector.
+
+Output (`features_dataset.csv`):
+The final output of this script is `logs/features_dataset.csv`. Each row in this CSV file represents one simulated test session, containing all the engineered numerical features calculated above, along with the binary `label` (0 for Normal, 1 for Cheat). This dataset is now ready for use in training and evaluating machine learning models.
+
+3. Model Training and Evaluation
+
+Purpose:
+With the engineered feature set (`features_dataset.csv`) providing a structured, numerical representation of each session, the next step was to train and evaluate machine learning models capable of learning the patterns that distinguish between "Normal" (label 0) and "Cheat" (label 1) behaviors. The goal was to assess how well these models could classify unseen sessions based on the extracted features.
+
+Input Data:
+The primary input for this phase was the `logs/features_dataset.csv` file, containing the feature vectors for all 2000 simulated sessions, along with their corresponding binary labels.
+
+Preprocessing and Setup:
+Before training, several standard preprocessing steps were applied:
+    1.  **Data Splitting:** The dataset was divided into a training set (80% of the data) and a testing set (20% of the data) using `train_test_split` from scikit-learn. Crucially, the split was stratified based on the 'label' column (`stratify=y`). This ensures that the proportion of Normal and Cheat sessions was approximately the same in both the training and testing sets, preventing biased evaluation.
+    2.  **Feature Scaling:** Many machine learning algorithms (especially linear models like Logistic Regression and SVM) perform better when input features are on a similar scale. Therefore, `StandardScaler` from scikit-learn was used. The scaler was *fitted only on the training data* to learn the mean and standard deviation of each feature. Then, this *same fitted scaler* was used to transform (scale) both the training and the testing data. This prevents data leakage from the test set into the training process.
+
+Model Selection and Training:
+To compare different approaches, several common and effective classification algorithms were trained and evaluated using separate scripts:
+    *   `train_logistic_regression_model.py`: Trains a Logistic Regression model, a standard linear classifier.
+    *   `train_svm_model.py`: Trains a Support Vector Machine (SVM) classifier, often effective in high-dimensional spaces.
+    *   `train_random_forest_model.py`: Trains a Random Forest model, an ensemble method based on decision trees, known for its robustness and ability to capture non-linear relationships. Also provides feature importances.
+    *   `train_xgboost_model.py`: Trains an XGBoost classifier, a gradient boosting algorithm often achieving state-of-the-art results on tabular data.
+
+Each script followed the same core process: load data, split, scale, initialize the specific model, train the model (`model.fit(X_train_scaled, y_train)`), and make predictions on the unseen test set (`model.predict(X_test_scaled)`).
+
+Evaluation Metrics:
+Model performance was assessed on the held-out test set using standard classification metrics:
+    *   **Accuracy:** The overall percentage of correctly classified sessions (both Normal and Cheat).
+    *   **Precision:** For each class (Normal/Cheat), the proportion of sessions predicted as that class that were actually correct (`True Positives / (True Positives + False Positives)`). High precision for the 'Cheat' class means fewer false alarms.
+    *   **Recall (Sensitivity):** For each class, the proportion of actual sessions of that class that were correctly identified (`True Positives / (True Positives + False Negatives)`). High recall for the 'Cheat' class means fewer cheaters are missed.
+    *   **F1-Score:** The harmonic mean of Precision and Recall, providing a single metric balancing both concerns (`2 * (Precision * Recall) / (Precision + Recall)`).
+    *   **Confusion Matrix:** A table showing the counts of True Positives, True Negatives, False Positives, and False Negatives, giving a detailed breakdown of correct and incorrect predictions for each class.
+    *   **Classification Report:** A summary text report providing Precision, Recall, and F1-Score for each class.
+
+Results Summary:
+Across the board, the trained models demonstrated very high performance on the test set, with accuracy scores typically ranging from approximately 99.5% to 99.8%. This indicates that the engineered features contained strong signals allowing the models to effectively distinguish between the simulated normal and cheating behaviors.
+
+While all models performed exceptionally well, the ensemble methods, particularly **Random Forest** and **XGBoost**, showed slightly superior or more robust performance across metrics like F1-score, especially in correctly identifying the varied cheating personas. The Random Forest model also provided readily interpretable feature importances (saved in `random_forest_feature_importance.png`), highlighting that deviation features (like `mean_time_z_score`, `std_dev_time_z_score`) and core performance/timing metrics (`accuracy`, `mean_time_per_question`) were among the most influential factors in the classification decisions. The high overall performance validates the effectiveness of the simulation, feature engineering, and modeling pipeline for this synthetic dataset.
