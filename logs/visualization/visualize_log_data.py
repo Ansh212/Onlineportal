@@ -64,6 +64,23 @@ persona_order = [
     
 ]
 
+# Cheat / Normal Mapping
+cheating_personas = [
+    "cheater_slow_careful", "cheater_tab_switcher", "cheater_smart", "pre_knowledge"
+]
+normal_personas = [
+    "topper", "average", "slow_careful", "overconfident", "struggler"
+]
+
+def map_to_cheat_or_normal(persona):
+    if persona in cheating_personas:
+        return "cheat"
+    elif persona in normal_personas:
+        return "normal"
+    else:
+        return "unknown"
+
+
 # --- Helper Functions ---
 def parse_timestamp(ts_str):
     if not ts_str: return None
@@ -182,68 +199,80 @@ def process_log_file_for_viz(log_data, question_details_lookup, filename):
 # --- Plotting Functions ---
 
 def plot_time_distribution(df, output_dir):
-    """Plots time spent per question by difficulty and persona."""
+    """Plots time spent per question by difficulty and cheat/normal."""
+    df["cheat_status"] = df["persona"].apply(map_to_cheat_or_normal)
     plt.figure(figsize=(12, 7))
-    sns.boxplot(data=df, x="difficulty", y="time_spent", hue="persona", 
-                order=difficulty_order, hue_order=persona_order, showfliers=False) # Hide outliers for clarity
-    plt.title("Time Spent per Question by Difficulty and Persona")
+    sns.boxplot(data=df, x="difficulty", y="time_spent", hue="cheat_status", 
+                order=difficulty_order, hue_order=["normal", "cheat"], showfliers=False)
+    plt.title("Time Spent per Question by Difficulty (Cheat vs Normal)")
     plt.ylabel("Time Spent (seconds)")
     plt.xlabel("Question Difficulty")
-    plt.ylim(0, 400) # Adjust ylim if needed based on data
-    plt.legend(title="Persona", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.ylim(0, 400)
+    plt.legend(title="Status", bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "time_distribution_persona_difficulty.png"))
+    plt.savefig(os.path.join(output_dir, "time_distribution_cheat_vs_normal.png"))
     plt.close()
 
 def plot_accuracy(df, output_dir):
-     """Plots average accuracy by persona and difficulty."""
-     # Accuracy by Persona
-     plt.figure(figsize=(10, 6))
-     acc_persona = df.groupby("persona")["answered_correctly"].mean().reindex(persona_order).reset_index()
-     sns.barplot(data=acc_persona, x="persona", y="answered_correctly")
-     plt.title("Average Accuracy per Persona")
-     plt.ylabel("Accuracy")
-     plt.xlabel("Persona")
-     plt.ylim(0, 1)
-     plt.tight_layout()
-     plt.savefig(os.path.join(output_dir, "accuracy_by_persona.png"))
-     plt.close()
+    """Plots average accuracy by cheat/normal and difficulty."""
+    df["cheat_status"] = df["persona"].apply(map_to_cheat_or_normal)
 
-     # Accuracy by Difficulty
-     plt.figure(figsize=(10, 6))
-     acc_difficulty = df.groupby("difficulty")["answered_correctly"].mean().reindex(difficulty_order).reset_index()
-     sns.barplot(data=acc_difficulty, x="difficulty", y="answered_correctly")
-     plt.title("Average Accuracy per Difficulty")
-     plt.ylabel("Accuracy")
-     plt.xlabel("Difficulty")
-     plt.ylim(0, 1)
-     plt.tight_layout()
-     plt.savefig(os.path.join(output_dir, "accuracy_by_difficulty.png"))
-     plt.close()
-     
-def plot_session_summary(df_summary, output_dir):
-    """Plots overall session duration vs accuracy."""
-    plt.figure(figsize=(10, 7))
-    sns.scatterplot(data=df_summary, x="total_duration", y="overall_accuracy", hue="persona", hue_order=persona_order, alpha=0.7)
-    plt.title("Session Duration vs. Overall Accuracy by Persona")
-    plt.xlabel("Total Duration (seconds)")
-    plt.ylabel("Overall Accuracy")
-    plt.legend(title="Persona", bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Accuracy by Cheat Status
+    plt.figure(figsize=(8, 6))
+    acc_status = df.groupby("cheat_status")["answered_correctly"].mean().reindex(["normal", "cheat"]).reset_index()
+    sns.barplot(data=acc_status, x="cheat_status", y="answered_correctly")
+    plt.title("Average Accuracy (Cheat vs Normal)")
+    plt.ylabel("Accuracy")
+    plt.xlabel("Status")
+    plt.ylim(0, 1)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "duration_vs_accuracy_persona.png"))
+    plt.savefig(os.path.join(output_dir, "accuracy_cheat_vs_normal.png"))
     plt.close()
 
-def plot_answer_changes(df_summary, output_dir):
-    """Plots distribution of total answer changes per session by persona."""
+    # Accuracy by Difficulty
     plt.figure(figsize=(10, 6))
-    sns.histplot(data=df_summary, x="total_answer_changes", hue="persona", 
-                 hue_order=persona_order, multiple="stack", bins=range(0, int(df_summary['total_answer_changes'].max())+2))
-    plt.title("Distribution of Total Answer Changes per Session by Persona")
+    acc_difficulty = df.groupby("difficulty")["answered_correctly"].mean().reindex(difficulty_order).reset_index()
+    sns.barplot(data=acc_difficulty, x="difficulty", y="answered_correctly")
+    plt.title("Average Accuracy per Difficulty")
+    plt.ylabel("Accuracy")
+    plt.xlabel("Difficulty")
+    plt.ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "accuracy_by_difficulty.png"))
+    plt.close()
+ 
+     
+def plot_session_summary(df_summary, output_dir):
+    """Plots overall session duration vs accuracy by cheat/normal."""
+    df_summary["cheat_status"] = df_summary["persona"].apply(map_to_cheat_or_normal)
+
+    plt.figure(figsize=(10, 7))
+    sns.scatterplot(data=df_summary, x="total_duration", y="overall_accuracy", hue="cheat_status",
+                    hue_order=["normal", "cheat"], alpha=0.7)
+    plt.title("Session Duration vs. Overall Accuracy (Cheat vs Normal)")
+    plt.xlabel("Total Duration (seconds)")
+    plt.ylabel("Overall Accuracy")
+    plt.legend(title="Status", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "duration_vs_accuracy_cheat_vs_normal.png"))
+    plt.close()
+
+
+def plot_answer_changes(df_summary, output_dir):
+    """Plots distribution of total answer changes per session by cheat/normal."""
+    df_summary["cheat_status"] = df_summary["persona"].apply(map_to_cheat_or_normal)
+
+    plt.figure(figsize=(10, 6))
+    sns.histplot(data=df_summary, x="total_answer_changes", hue="cheat_status", 
+                 hue_order=["normal", "cheat"], multiple="stack", 
+                 bins=range(0, int(df_summary['total_answer_changes'].max())+2))
+    plt.title("Distribution of Answer Changes (Cheat vs Normal)")
     plt.xlabel("Number of Answer Changes")
     plt.ylabel("Number of Sessions")
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "answer_changes_distribution_persona.png"))
+    plt.savefig(os.path.join(output_dir, "answer_changes_distribution_cheat_vs_normal.png"))
     plt.close()
+
 
 # --- Main Execution ---
 if __name__ == "__main__":
