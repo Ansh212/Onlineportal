@@ -1,0 +1,123 @@
+/* Question display container */
+.question-display {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    width: 85%;
+    margin-left: 20px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .question-display {
+        width: 100%;
+        padding: 20px;
+        margin-left: 0;
+    }
+}
+
+/* Question text styling */
+.question-text {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .question-text {
+        font-size: 1em;
+    }
+}
+
+/* Options container */
+.options {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Single option styling */
+.option {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .option {
+        padding: 10px;
+    }
+}
+
+.option label {
+    font-size: 1em;
+    color: #34495e;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Radio button */
+.option input[type="radio"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #3498db;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.option input[type="radio"]:checked::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #3498db;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Hover effect for options */
+.option:hover {
+    border-color: #3498db;
+    background-color: #f0f9ff;
+}
+
+/* Unclear button styling */
+.unclear-button {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.unclear-button:hover {
+    background-color: #e67e22;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .unclear-button {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+}

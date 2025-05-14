@@ -1,0 +1,164 @@
+/* General Styles */
+.student-logs-tab {
+    font-family: "Arial", sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.sub-header {
+    font-size: 20px;
+    color: #444;
+    margin-top: 20px;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    text-align: center;
+    background-color: #ffe5e5;
+    border: 1px solid #ff6b6b;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+/* Dropdown Container */
+.dropdowns {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Score Section */
+.score-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e8f7ff;
+    border: 1px solid #b3e5ff;
+    border-radius: 8px;
+}
+
+.score {
+    font-size: 18px;
+    color: #006699;
+    font-weight: bold;
+}
+
+.tab-switch {
+    font-size: 16px;
+    color: #cc3300;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+/* Activity Section */
+.activity-section {
+    margin-bottom: 30px;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.activity-test-start {
+    background-color: #dfffd8;
+    border-left: 5px solid #39b54a;
+}
+
+.activity-test-submit {
+    background-color: #ffe9d6;
+    border-left: 5px solid #f7941d;
+}
+
+.activity-tab-switch {
+    background-color: #fddcdc;
+    border-left: 5px solid #cc3300;
+}
+
+.activity-default {
+    background-color: #f4f4f4;
+    border-left: 5px solid #ccc;
+}
+
+.activity-item .timestamp {
+    font-size: 14px;
+    color: #666;
+}
+
+.activity-item .activity-text {
+    font-size: 16px;
+    color: #333;
+}
+
+/* Time Section */
+.time-section {
+    margin-bottom: 20px;
+}
+
+.time-list {
+    list-style: none;
+    padding: 0;
+}
+
+.time-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #cce7ff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.time-item .question-id {
+    font-size: 16px;
+    color: #006699;
+}
+
+.time-item .time-spent {
+    font-size: 16px;
+    color: #333;
+}
+
+/* No Logs */
+.no-logs {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dropdowns {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .activity-item,
+    .time-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

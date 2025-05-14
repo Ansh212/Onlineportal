@@ -1,0 +1,46 @@
+/* AvgScore.css */
+
+.avg-score-tab {
+    font-family: "Arial", sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.header {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Dropdowns container */
+.dropdowns {
+    display: flex;
+    gap: 20px; /* Space between dropdowns */
+    flex-wrap: nowrap; /* Ensure all dropdowns stay on the same row */
+    justify-content: flex-start; /* Align dropdowns to the left */
+    overflow-x: auto; /* Enable horizontal scrolling if necessary */
+    margin-bottom: 20px;
+}
+
+.loading {
+    text-align: center;
+    font-size: 16px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 500px;
+}
+
+.no-data {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+}

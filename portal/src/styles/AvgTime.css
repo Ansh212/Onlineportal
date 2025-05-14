@@ -1,0 +1,77 @@
+/* General Component Styles */
+.avg-time-tab {
+    font-family: "Arial", sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+    width: 100%; /* Cover the entire width of the screen */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #ffe5e5;
+    border: 1px solid #ff6b6b;
+    border-radius: 5px;
+}
+
+/* Dropdowns Container */
+.dropdowns {
+    display: flex;
+    gap: 20px; /* Space between dropdowns */
+    flex-wrap: nowrap; /* Prevent wrapping of dropdowns */
+    justify-content: flex-start; /* Align dropdowns to the left */
+    margin-bottom: 20px;
+    overflow-x: auto; /* Enable horizontal scrolling for smaller screens */
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Chart Container */
+.chart-container {
+    width: 100%; /* Make the chart container span the full width */
+    height: 500px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box; /* Include padding in width calculation */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* No Data State */
+.no-data {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+    margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dropdowns {
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        justify-content: center; /* Center align for smaller screens */
+    }
+
+    .chart-container {
+        padding: 10px;
+        height: 400px; /* Adjust height for smaller screens */
+    }
+}

@@ -1,0 +1,51 @@
+.timer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.timer-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  min-width: 50px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.timer-box p {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.timer-box span {
+  font-size: 12px;
+  color: #555;
+}
+
+@media (max-width: 768px) {
+  .timer-container {
+      gap: 5px;
+  }
+
+  .timer-box {
+      padding: 8px;
+      min-width: 35px;
+  }
+
+  .timer-box p {
+      font-size: 14px;
+  }
+
+  .timer-box span {
+      font-size: 10px;
+  }
+}

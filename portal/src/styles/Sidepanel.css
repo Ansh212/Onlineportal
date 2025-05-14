@@ -1,0 +1,137 @@
+.side-panel {
+    background-color: #ffffff;
+    color: #333;
+    padding: 20px;
+    width: 20%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .side-panel {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+    }
+}
+
+/* Timer positioning within the side panel */
+.side-panel .timer-container {
+    margin-bottom: 20px; /* Adjust spacing as needed */
+    order: -1; /* Ensures the timer is placed at the top of the side panel */
+}
+
+/* Title and Content */
+.side-panel-title {
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+
+.question-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.question-list li {
+    margin-bottom: 10px;
+}
+
+.question-button {
+    background-color: #f8f8f8;
+    color: #333 !important;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-size: 1em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.question-button.active {
+    background-color: #007bff !important;
+    color: #ffffff !important;
+    border: 1px solid #007bff !important;
+}
+
+.question-button:hover {
+    background-color: #e0e0e0 !important;
+    color: #333 !important;
+    border: 1px solid #ddd;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.nav-button {
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1.1em;
+}
+
+.submit-button {
+    background-color: #28a745 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+/* ✅ WebGazer video container */
+.webgazer-box {
+    position: relative;
+    width: 100%;
+    max-width: 200px;  /* Video will max out at 200px width */
+    aspect-ratio: 4 / 3; /* Keeps proper webcam aspect ratio */
+    margin: 10px auto;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    border-radius: 8px; /* Rounded corners */
+    background: #000;  /* Black background before webcam shows */
+  }
+  
+  /* ✅ Force WebGazer video and canvas to fill the box */
+  .webgazer-box video, 
+  .webgazer-box canvas {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+
+@media (max-width: 768px) {
+    .nav-button, .submit-button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+

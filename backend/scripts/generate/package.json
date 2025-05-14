@@ -1,0 +1,15 @@
+{
+  "name": "test-data-generator",
+  "version": "1.0.0",
+  "description": "Script to generate test data for online portal",
+  "main": "generateUsers.js",
+  "scripts": {
+    "generate:users": "node generateUsers.js",
+    "generate:logs": "node generateLogs.js",
+    "generate:all": "npm run generate:users && npm run generate:logs"
+  },
+  "dependencies": {
+    "mongoose": "^6.10.0",
+    "faker": "^5.5.3"
+  }
+} 

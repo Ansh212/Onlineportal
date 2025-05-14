@@ -1,0 +1,122 @@
+/* General Container */
+.student-logs-tab {
+    font-family: "Arial", sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Header Styling */
+.header {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Dropdowns */
+.dropdowns {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Charts Container */
+.charts-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.chart {
+    flex: 1;
+    max-width: 45%; /* Each chart takes ~45% of the width */
+    background-color: #ffffff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.chart h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Lists Container */
+.activity-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.list {
+    flex: 1;
+    max-width: 45%; /* Each list takes ~45% of the width */
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.activity-item .activity-text {
+    font-size: 16px;
+    color: #333;
+}
+
+/* No Logs Placeholder */
+.no-logs {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+    margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .charts-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart {
+        max-width: 100%;
+    }
+
+    .activity-section {
+        flex-direction: column;
+    }
+
+    .list {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+}

@@ -1,0 +1,79 @@
+
+.admin-dashboard {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading */
+.admin-dashboard h1 {
+    font-size: 2em;
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.logout-button {
+    background-color: #ff4d4d;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: -60px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #ff1a1a;
+}
+
+/* Tab Buttons */
+.tab-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px; /* Add spacing between buttons */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.tab-buttons button {
+    background-color: #ddd;
+    color: #333;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-buttons button:hover {
+    background-color: #ccc;
+}
+
+.tab-buttons .active-tab {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Content Section */
+.tab-content {
+    margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tab-buttons {
+        flex-direction: column;
+    }
+
+    .logout-button {
+        padding: 10px;
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,84 @@
+.test-details-container {
+  padding: 20px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Heading */
+.test-details-heading {
+  font-size: 1.8em;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Message */
+.test-details-message {
+  font-size: 1.2em;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Actions Container */
+.test-details-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* Start Test Button */
+.start-test-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.start-test-button:hover {
+  background-color: #45a049;
+}
+
+/* Cancel Test Button */
+.cancel-test-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-test-button:hover {
+  background-color: #ff1a1a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* Reduce font sizes on smaller screens */
+  .test-details-heading {
+    font-size: 1.5em;
+  }
+
+  .test-details-message {
+    font-size: 1em;
+  }
+
+  /* Stack buttons vertically on smaller screens */
+  .test-details-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .start-test-button,
+  .cancel-test-button {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+}
